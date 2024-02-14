@@ -3,10 +3,10 @@ import Text.Read (readMaybe)
 import System.Exit (exitSuccess)
 import Control.Monad.RWS (MonadState(put))
 
-data Todo = Todo { id :: Int, title :: String, doUntil :: String }
+data Todo = Todo { title :: String, doUntil :: String }
 
 todos :: [Todo]
-todos = [Todo 1 "Buy milk" "2020-12-24", Todo 2 "Learn Haskell" "2020-12-25"]
+todos = [Todo  "Buy milk" "2020-12-24", Todo  "Learn Haskell" "2020-12-25"]
 
 main :: IO()
 main = do
@@ -48,6 +48,14 @@ getNumberInput = do
             putStrLn "Invalid input. Please enter a valid number."
             getNumberInput
 
+getTodoSelection :: IO Todo
+getTodoSelection = do
+    number <- getNumberInput
+    if number > length todos || number < 1
+    then do
+        putStrLn "Todo does not exist"
+        getTodoSelection
+    else return (todos !! (number - 1))
 
 addTodo :: IO ()
 addTodo = putStrLn "Adding a new task"
@@ -60,11 +68,14 @@ showTodos = do
         putStrLn "Todos:"
         mapM_ putStrLn $ zipWith (\i todo -> "- " ++ show i ++ " " ++  title todo) [1..] todos
         putStrLn "-----------------"
-        putStrLn ""
     else putStrLn "No todos yet"
 
 removeTodo :: IO ()
-removeTodo = putStrLn "Removing a task"
+removeTodo = do
+    showTodos
+    putStrLn "Which todo do you want to remove?"
+    removeTodo <- getTodoSelection
+    putStrLn "test"
 
 exit :: IO ()
 exit = do
