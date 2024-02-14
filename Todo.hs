@@ -20,7 +20,7 @@ menuOptions = [MenuOption "Add a new todo" addTodo, MenuOption "Show all todos" 
 menu :: IORef [Todo] -> IO() 
 menu ref  = do
     printMenu
-    menuSelection <-  getMenuSelection
+    menuSelection <- getMenuSelection
     function (menuOptions !! (menuSelection - 1)) ref
     menu ref
 
@@ -66,6 +66,7 @@ addTodo ref = do
     doUntil <- getLine
     let newTodo = Todo {title = title, doUntil = doUntil}
     writeIORef ref (newTodo : todos)
+    putStrLn "Todo added"
 
 showTodos :: IORef [Todo] -> IO ()
 showTodos ref = do
@@ -87,7 +88,7 @@ removeTodo ref = do
         putStrLn "Which todo do you want to remove?"  
         removeTodoIndex <- getTodoSelection todos
         writeIORef ref (delete (todos !! removeTodoIndex) todos)
-        putStrLn ""
+        putStrLn "The Todo got removed"
     else putStrLn "There are no todos"
 
 exit :: IORef [Todo] -> IO ()
