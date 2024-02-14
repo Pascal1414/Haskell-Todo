@@ -1,6 +1,6 @@
 import System.Console.Haskeline (getInputLine)
 import Text.Read (readMaybe)
-import System.Win32 (xBUTTON1)
+import System.Exit (exitSuccess)
 
 data Todo = Todo { id :: Int, title :: String, doUntil :: String }
 
@@ -55,4 +55,6 @@ removeTask :: IO ()
 removeTask = putStrLn "Removing a task"
 
 exit :: IO ()
-exit = putStrLn "Exiting the program"
+exit = do
+    putStrLn "Ok Bye Bye!"
+    exitSuccess
