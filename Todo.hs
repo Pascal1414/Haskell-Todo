@@ -18,9 +18,11 @@ menuOptions :: [MenuOption]
 menuOptions = [MenuOption "Add a new todo" addTodo, MenuOption "Show all todos" showTodos, MenuOption "Remove a todo" removeTodo, MenuOption "Exit" exit]
 
 menu :: IORef [Todo] -> IO() 
-menu ref  = do
+menu ref  = do   
+    putStrLn "-----------------"
     printMenu
     menuSelection <- getMenuSelection
+    putStrLn "-----------------"
     function (menuOptions !! (menuSelection - 1)) ref
     menu ref
 
@@ -73,10 +75,8 @@ showTodos ref = do
     todos <- readIORef ref
     if length todos > 0
     then do
-        putStrLn "-----------------"
-        putStrLn "Todos:"
-        mapM_ putStrLn $ zipWith (\i todo -> "- " ++ show i ++ " " ++  title todo) [1..] todos
-        putStrLn "-----------------"
+        putStrLn "Todos (index, title, doUntil):"
+        mapM_ putStrLn $ zipWith (\i todo -> "- " ++ show i ++ ", " ++  title todo ++ ", " ++ doUntil todo) [1..] todos
     else putStrLn "No todos yet"
 
 removeTodo :: IORef [Todo] -> IO ()
@@ -85,6 +85,7 @@ removeTodo ref = do
     if not (null todos) && length todos /= 0  
     then do
         showTodos ref
+        putStrLn "-----------------"
         putStrLn "Which todo do you want to remove?"  
         removeTodoIndex <- getTodoSelection todos
         writeIORef ref (delete (todos !! removeTodoIndex) todos)
