@@ -1,8 +1,12 @@
 import System.Console.Haskeline (getInputLine)
 import Text.Read (readMaybe)
 import System.Exit (exitSuccess)
+import Control.Monad.RWS (MonadState(put))
 
 data Todo = Todo { id :: Int, title :: String, doUntil :: String }
+
+todos :: [Todo]
+todos = [Todo 1 "Buy milk" "2020-12-24", Todo 2 "Learn Haskell" "2020-12-25"]
 
 main :: IO()
 main = do
@@ -11,7 +15,7 @@ main = do
 
 data MenuOption = MenuOption { name :: String, function :: IO () }
 menuOptions :: [MenuOption]
-menuOptions = [MenuOption "Add a new task" addTask, MenuOption "Show all tasks" showTasks, MenuOption "Remove a task" removeTask, MenuOption "Exit" exit]
+menuOptions = [MenuOption "Add a new todo" addTodo, MenuOption "Show all todos" showTodos, MenuOption "Remove a todo" removeTodo, MenuOption "Exit" exit]
 
 menu :: IO()
 menu = do
@@ -45,14 +49,22 @@ getNumberInput = do
             getNumberInput
 
 
-addTask :: IO ()
-addTask = putStrLn "Adding a new task"
+addTodo :: IO ()
+addTodo = putStrLn "Adding a new task"
 
-showTasks :: IO ()
-showTasks = putStrLn "Showing all tasks"
+showTodos :: IO ()
+showTodos = do
+    if length todos > 0
+    then do
+        putStrLn "-----------------"
+        putStrLn "Todos:"
+        mapM_ putStrLn $ zipWith (\i todo -> "- " ++ show i ++ " " ++  title todo) [1..] todos
+        putStrLn "-----------------"
+        putStrLn ""
+    else putStrLn "No todos yet"
 
-removeTask :: IO ()
-removeTask = putStrLn "Removing a task"
+removeTodo :: IO ()
+removeTodo = putStrLn "Removing a task"
 
 exit :: IO ()
 exit = do
