@@ -1,4 +1,4 @@
-# Todo App with Huskell
+# Todo App with Haskell
 
 ## Run
 
