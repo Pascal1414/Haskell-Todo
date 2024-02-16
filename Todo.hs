@@ -2,29 +2,29 @@ import System.Console.Haskeline (getInputLine)
 import Text.Read (readMaybe)
 import System.Exit (exitSuccess)
 import Control.Monad.RWS (MonadState(put))
-import Data.IORef
 import Data.List(delete)
 
 data Todo = Todo { title :: String, doUntil :: String } deriving (Eq)
 
 main :: IO()
 main = do
-    ref <- newIORef []
     putStrLn "Welcome to Todo-App"
-    menu ref
+    finalTodos <- menu []
+    putStrLn "Goodbye!"
 
-data MenuOption = MenuOption { name :: String, function ::IORef [Todo] ->  IO () }
+data MenuOption = MenuOption { name :: String, function :: [Todo] ->  IO [Todo] }
 menuOptions :: [MenuOption]
 menuOptions = [MenuOption "Add a new todo" addTodo, MenuOption "Show all todos" showTodos, MenuOption "Remove a todo" removeTodo, MenuOption "Exit" exit]
 
-menu :: IORef [Todo] -> IO() 
-menu ref  = do   
+menu :: [Todo] -> IO () 
+menu todos  = do   
     putStrLn "-----------------"
     printMenu
     menuSelection <- getMenuSelection
     putStrLn "-----------------"
-    function (menuOptions !! (menuSelection - 1)) ref
-    menu ref
+    newTodos <- function (menuOptions !! (menuSelection - 1)) todos
+    menu newTodos
+    
 
 printMenu :: IO ()
 printMenu = do
@@ -59,40 +59,40 @@ getTodoSelection todos = do
         getTodoSelection todos
     else return (number - 1)
 
-addTodo :: IORef [Todo] -> IO ()
-addTodo ref = do
-    todos <- readIORef ref
+addTodo :: [Todo] -> IO [Todo]
+addTodo todos = do
     putStrLn "Title:"
     title <- getLine
-    putStrLn "DoUntil"
+    putStrLn "DoUntil:"
     doUntil <- getLine
     let newTodo = Todo {title = title, doUntil = doUntil}
-    writeIORef ref (newTodo : todos)
     putStrLn "Todo added"
+    return (newTodo : todos)
 
-showTodos :: IORef [Todo] -> IO ()
-showTodos ref = do
-    todos <- readIORef ref
+showTodos :: [Todo] -> IO [Todo] 
+showTodos todos = do
     if length todos > 0
     then do
         putStrLn "Todos (index, title, doUntil):"
         mapM_ putStrLn $ zipWith (\i todo -> "- " ++ show i ++ ", " ++  title todo ++ ", " ++ doUntil todo) [1..] todos
     else putStrLn "No todos yet"
+    return todos
 
-removeTodo :: IORef [Todo] -> IO ()
-removeTodo ref = do   
-    todos <- readIORef ref
+removeTodo :: [Todo] -> IO [Todo]
+removeTodo todos = do   
     if not (null todos) && length todos /= 0  
     then do
-        showTodos ref
+        showTodos todos
         putStrLn "-----------------"
         putStrLn "Which todo do you want to remove?"  
-        removeTodoIndex <- getTodoSelection todos
-        writeIORef ref (delete (todos !! removeTodoIndex) todos)
+        removeTodoIndex <- getTodoSelection todos 
         putStrLn "The Todo got removed"
-    else putStrLn "There are no todos"
+        return  (delete (todos !! removeTodoIndex) todos)
+    else do
+        putStrLn "There are no todos"
+        return todos
 
-exit :: IORef [Todo] -> IO ()
-exit ref = do
+exit :: [Todo] -> IO [Todo]
+exit todos = do
     putStrLn "Ok Bye Bye!"
     exitSuccess
