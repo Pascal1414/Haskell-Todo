@@ -64,7 +64,7 @@ addTodo ref = do
     todos <- readIORef ref
     putStrLn "Title:"
     title <- getLine
-    putStrLn "DoUntil"
+    putStrLn "DoUntil:"
     doUntil <- getLine
     let newTodo = Todo {title = title, doUntil = doUntil}
     writeIORef ref (newTodo : todos)
